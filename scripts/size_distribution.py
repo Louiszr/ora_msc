@@ -19,6 +19,8 @@ kegg_instance.organism = "eco"
 # Initialise both backgrounds
 test_compounds = ora_msc.get_all_compounds('eco')
 zamboni_bg = ora_msc.loadTsv(DATA_PATH + 'annotation_all.txt')
+# Remove metabolites detected in Zamboni but not in any E.coli pathway
+zamboni_bg = zamboni_bg & test_compounds
 # build {pathway: compounds} dictionary for E.coli
 ecoli_pathways = kegg_instance.pathwayIds
 pathway_2_compounds = dict()

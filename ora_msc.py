@@ -88,7 +88,7 @@ def ora(in_metabolites, pathway_id, bg_metabolites, pathway_2_compounds, least_n
     test_in_metabolites = in_metabolites & test_pathway_compounds
     if len(test_in_metabolites) < least_num_metabolites:
         return 'Low metabolites'
-    hyperg_test = hypergeom(len(bg_metabolites), len(test_pathway_compounds), len(in_metabolites))
+    hyperg_test = hypergeom(len(bg_metabolites), len(test_pathway_compounds), len(in_metabolites & bg_metabolites))
     ora_raw_pval = 1 - hyperg_test.cdf(len(test_in_metabolites)) + hyperg_test.pmf(len(test_in_metabolites))
     return ora_raw_pval, pathway_id, len(test_pathway_compounds)
 

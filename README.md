@@ -14,3 +14,8 @@ locality.py does not work at the moment...
 * locality.py
 * scripts folder
 * data from Zamboni paper, can I put them here?
+
+### 11/07/2017
+* fixed a bug which may cause the DE metabolite list a bit longer
+* the bug was caused by my ignorance of metabolites which were in the Zamboni background but not in the KEGG database
+* old results were therefore a bit less significant than they should be
