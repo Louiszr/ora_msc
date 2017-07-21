@@ -182,3 +182,53 @@ def dup_argsort(in_val):
     u, v = np.unique(in_val, return_inverse=True)
     out_ind = (np.cumsum(np.concatenate(([0], np.bincount(v)))))[v]
     return out_ind
+
+# Generating null models
+def make_null_model(original_model, metabolite_pool, overlap=False):
+    '''
+    original_model -- the dictionary with pathways as keys and metabolites as values
+    metabolite_pool -- the collection of metabolites which the null model can include
+    overlap -- True: overlap between pathways will not be randomised; False: overlap will be randomised
+    '''
+    if overlap:
+        # If keeping the metabolite overlap, we only shuffle the labels of the metabolites
+        
+        # Getting the original metabolites
+        original_metabolites = set()
+        for value in original_model.values():
+            original_metabolites = original_metabolites | value
+        original_metabolites = list(original_metabolites)
+        
+        random.shuffle(metabolite_pool)
+        metabolite_translate = dict(zip(original_metabolites, metabolite_pool[:len(original_metabolites)]))
+    new_model = dict()
+    for pathway in original_model:
+        pathwaysize = len(original_model[pathway])
+        if overlap:
+            new_model[pathway] = set()
+            for metabolite in original_model[pathway]:
+                new_model[pathway].add(metabolite_translate[metabolite])
+        else:
+            for i in range(0, pathwaysize):
+                random.shuffle(metabolite_pool)
+                new_model[pathway] = set(metabolite_pool[:pathwaysize])
+    return new_model
+
+# Save null models and load null models
+def save_null_model(model, filename):
+    with open(filename, 'w') as fh:
+        for pathway in model:
+            metabolites = list(model[pathway])
+            fh.write(pathway+'\t')
+            fh.write(','.join(metabolites))
+            fh.write('\n')
+            
+def load_null_model(filename):
+    model = dict()
+    with open(filename, 'r') as fh:
+        for line in fh.readlines():
+            fields = line.rstrip().split('\t')
+            pathway = fields[0]
+            metabolites = set(fields[1].split(','))
+            model[pathway] = metabolites
+    return model
