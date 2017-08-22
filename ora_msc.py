@@ -98,17 +98,15 @@ def oras_ko(ko_number, testing_pathways, background_metabolites, pathway_2_compo
             neg_annotation_file, neg_modzscore_file, 
             zscore_threshold, 
             multiple_testing_correction, minus_log_trans, max_mutation, mutation_pool):
-    
 
-	'''
-	Only usable for the Zamboni dataset
-	Could replace it with oras_allpaths in the future
-	'''
+    '''
+    Only usable for the Zamboni dataset
+    Might replace it with oras_allpaths in the future
+    '''
 
-    ko_metabolites = build_metabo_input(ko_number, 
-                       pos_annotation_file, pos_modzscore_file, 
-                       neg_annotation_file, neg_modzscore_file, 
-                       zscore_threshold)
+    ko_metabolites = build_metabo_input(ko_number,
+    	pos_annotation_file, pos_modzscore_file, neg_annotation_file, neg_modzscore_file,
+    	zscore_threshold)
     # Random Mutation
     if max_mutation:
         tmp_metabolites = ko_metabolites # Copy ko_metabolites
