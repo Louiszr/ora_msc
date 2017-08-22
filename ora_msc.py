@@ -99,6 +99,12 @@ def oras_ko(ko_number, testing_pathways, background_metabolites, pathway_2_compo
             zscore_threshold, 
             multiple_testing_correction, minus_log_trans, max_mutation, mutation_pool):
     
+
+	'''
+	Only usable for the Zamboni dataset
+	Could replace it with oras_allpaths in the future
+	'''
+
     ko_metabolites = build_metabo_input(ko_number, 
                        pos_annotation_file, pos_modzscore_file, 
                        neg_annotation_file, neg_modzscore_file, 
@@ -118,6 +124,43 @@ def oras_ko(ko_number, testing_pathways, background_metabolites, pathway_2_compo
     pathwaysize = []
     for pathway in testing_pathways:
         ora_res = ora(ko_metabolites, pathway, background_metabolites, pathway_2_compounds)
+        if len(ora_res) == 3: # if both ora_raw_pval and pathway_id are returned
+            pval.append(ora_res[0])
+            pathwayid.append(ora_res[1])
+            pathwaysize.append(ora_res[2])
+    # Multiple testing correction
+    if multiple_testing_correction:
+        pval = list(importr('stats').p_adjust(FloatVector(pval), method = 'BH'))
+    # -log transformation
+    if minus_log_trans:
+        pval = list(map(np.log10, pval))
+        pval = list(map(np.negative, pval))
+    return pval, pathwayid, pathwaysize
+
+
+def oras_allpaths(in_metabolites, testing_pathways, background_metabolites, pathway_2_compounds,  
+            multiple_testing_correction, minus_log_trans, max_mutation, mutation_pool):
+    
+    '''
+    Run ORAs for all pathways
+    in_metabolites must be type set()
+    '''
+
+    # Random Mutation
+    if max_mutation:
+        tmp_metabolites = in_metabolites # Copy in_metabolites
+        (background_metabolites, old_met, new_met) = misidentify(background_metabolites, 
+                                                                 max_mutation, mutation_pool, True)
+        met_translate = dict(zip(old_met, new_met)) # Make a dictionary for translation
+        in_metabolites = set() # Empty in_metabolites
+        for met in tmp_metabolites: # For each member in tmp, translate them and add them back to in_metabolites
+            in_metabolites.add(met_translate.get(met, met))
+    # Generating raw p values
+    pval = []
+    pathwayid = []
+    pathwaysize = []
+    for pathway in testing_pathways:
+        ora_res = ora(in_metabolites, pathway, background_metabolites, pathway_2_compounds)
         if len(ora_res) == 3: # if both ora_raw_pval and pathway_id are returned
             pval.append(ora_res[0])
             pathwayid.append(ora_res[1])
